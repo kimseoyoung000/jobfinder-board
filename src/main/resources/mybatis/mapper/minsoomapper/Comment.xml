@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spring.app.community.model.CommentDAO">
+
+    <!-- 부모 댓글 목록 -->
+    <select id="getComments" parameterType="long"
+            resultType="com.spring.app.community.domain.CommentDTO">
+        SELECT comment_id    AS commentId,
+               fk_post_id    AS postId,
+               fk_memberid   AS memberId,
+               content,
+               fk_parent_comment_id AS parentCommentId,
+               status,
+               created_at    AS createdAt
+        FROM tbl_comment
+        WHERE fk_post_id = #{postId}
+        AND fk_parent_comment_id IS NULL
+        AND status = 'ACTIVE'
+        AND IS_HIDDEN = 0
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 대댓글 목록 -->
+    <select id="getReplies" parameterType="long"
+            resultType="com.spring.app.community.domain.CommentDTO">
+        SELECT comment_id    AS commentId,
+               fk_post_id    AS postId,
+               fk_memberid   AS memberId,
+               content,
+               fk_parent_comment_id AS parentCommentId,
+               status,
+               created_at    AS createdAt
+        FROM tbl_comment
+        WHERE fk_parent_comment_id = #{parentCommentId}
+        AND status = 'ACTIVE'
+        AND IS_HIDDEN = 0
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 댓글 등록 -->
+    <insert id="insertComment" parameterType="map">
+        INSERT INTO tbl_comment (
+            comment_id,
+            fk_post_id,
+            fk_memberid,
+            content,
+            fk_parent_comment_id,
+            status,
+            created_at
+        ) VALUES (
+            (SELECT NVL(MAX(comment_id), 0) + 1 FROM tbl_comment),
+            #{postId},
+            #{memberId},
+            #{content},
+            #{parentCommentId, jdbcType=NUMERIC},
+            'ACTIVE',
+            SYSDATE
+        )
+    </insert>
+
+    <!-- 댓글 수 -->
+    <select id="getCommentCount" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM tbl_comment
+        WHERE fk_post_id = #{postId}
+        AND status = 'ACTIVE'
+        AND IS_HIDDEN = 0
+    </select>
+    
+	    <!-- 이전 게시글 -->
+	<select id="getPrevPost" parameterType="long"
+	        resultType="com.spring.app.community.domain.CommunityPostDTO">
+	    SELECT post_id AS postId, title
+	    FROM tbl_post
+	    WHERE post_id = (
+	        SELECT MAX(post_id)
+	        FROM tbl_post
+	        WHERE post_id &lt; #{postId}
+	        AND post_status = 'ACTIVE'
+	        AND IS_HIDDEN = 0
+	    )
+	</select>
+	
+	<!-- 다음 게시글 -->
+	<select id="getNextPost" parameterType="long"
+	        resultType="com.spring.app.community.domain.CommunityPostDTO">
+	    SELECT post_id AS postId, title
+	    FROM tbl_post
+	    WHERE post_id = (
+	        SELECT MIN(post_id)
+	        FROM tbl_post
+	        WHERE post_id &gt; #{postId}
+	        AND post_status = 'ACTIVE'
+	        AND IS_HIDDEN = 0
+	    )
+	</select>
+	
+	<!-- 댓글 수정 -->
+	<update id="editComment" parameterType="map">
+	    UPDATE tbl_comment
+	    SET content = #{content},
+	        updated_at = SYSDATE
+	    WHERE comment_id = #{commentId}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<update id="deleteComment" parameterType="long">
+	    UPDATE tbl_comment
+	    SET status = 'DELETED'
+	    WHERE comment_id = #{commentId}
+	</update>
+
+</mapper>
