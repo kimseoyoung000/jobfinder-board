@@ -22,14 +22,23 @@
       return false;
     }
 
-    function handleLogout() {
-      if (window.JPAuth && typeof window.JPAuth.clearAccessToken === 'function') {
-        window.JPAuth.clearAccessToken();
-      }
-      localStorage.removeItem('loginUser');
-      sessionStorage.removeItem('accessToken');
-      sessionStorage.removeItem('refreshToken');
-      return true;
+    function handleLogout(event) {
+      event.preventDefault();
+
+      fetch('http://localhost:8000/user-service/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+      .finally(() => {
+        if (window.JPAuth && typeof window.JPAuth.clearAccessToken === 'function') {
+          window.JPAuth.clearAccessToken();
+        }
+        localStorage.removeItem('loginUser');
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('refreshToken');
+
+        window.location.href = 'http://localhost:8000/user-service/member/login';
+      });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -42,35 +51,42 @@
 
       if (!msaGuestMenu || !msaUserMenu) return;
 
-      let loginUser = null;
-      const loginUserRaw = localStorage.getItem('loginUser');
-      const accessToken = sessionStorage.getItem('accessToken');
+      // ✅ auth/check API로 로그인 여부 확인
+      fetch('http://localhost:8000/user-service/auth/check', {
+        method: 'GET',
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          if (msaLoginMemberId) {
+            msaLoginMemberId.textContent = data.memberId || '회원';
+          }
+          msaGuestMenu.classList.add('d-none');
+          msaUserMenu.classList.remove('d-none');
 
-      if (loginUserRaw) {
-        try {
-          loginUser = JSON.parse(loginUserRaw);
-        } catch (e) {
-          loginUser = null;
+          // 권한별 메뉴 - localStorage 폴백
+          const loginUserRaw = localStorage.getItem('loginUser');
+          let role = '';
+          if (loginUserRaw) {
+            try {
+              const loginUser = JSON.parse(loginUserRaw);
+              role = loginUser.role || '';
+            } catch (e) {}
+          }
+          if (msaAdminMenu && role.includes('ADMIN')) msaAdminMenu.classList.remove('d-none');
+          if (msaCompanyMenu && role.includes('COMPANY')) msaCompanyMenu.classList.remove('d-none');
+          if (msaMemberMenu && role.includes('MEMBER')) msaMemberMenu.classList.remove('d-none');
+
+        } else {
+          msaGuestMenu.classList.remove('d-none');
+          msaUserMenu.classList.add('d-none');
         }
-      }
-
-      if (loginUser && accessToken) {
-        if (msaLoginMemberId) {
-          msaLoginMemberId.textContent = loginUser.memberid || loginUser.name || '회원';
-        }
-        msaGuestMenu.classList.add('d-none');
-        msaUserMenu.classList.remove('d-none');
-
-        // 권한별 메뉴
-        const role = loginUser.role || '';
-        if (msaAdminMenu && role.includes('ADMIN')) msaAdminMenu.classList.remove('d-none');
-        if (msaCompanyMenu && role.includes('COMPANY')) msaCompanyMenu.classList.remove('d-none');
-        if (msaMemberMenu && role.includes('MEMBER')) msaMemberMenu.classList.remove('d-none');
-
-      } else {
+      })
+      .catch(() => {
         msaGuestMenu.classList.remove('d-none');
         msaUserMenu.classList.add('d-none');
-      }
+      });
     });
   </script>
 
@@ -129,7 +145,7 @@
               </div>
 
               <!-- 로그아웃 -->
-              <form action="http://localhost:8000/user-service/security/logout" method="post" class="m-0 ml-2" onsubmit="return handleLogout();">
+              <form class="m-0 ml-2" onsubmit="handleLogout(event);">
                 <button type="submit" class="jp-auth__link btn btn-link p-0">로그아웃</button>
               </form>
 

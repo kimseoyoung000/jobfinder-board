@@ -2,7 +2,6 @@
 <html th:replace="~{layout/layout_main :: layout(~{::title}, ~{::link}, ~{::style}, ~{::script}, ~{::section})}"
       lang="ko"
       xmlns:th="http://www.thymeleaf.org">
-<!-- sec:authorize 전부 제거 — xmlns:sec 불필요 -->
 
 <head>
     <meta charset="UTF-8">
@@ -139,12 +138,10 @@
     <div class="post-card">
         <span class="post-board-label" th:text="${post.boardTitle}">게시판</span>
 
-        <!-- 제목 (일반) -->
         <div id="postTitleView">
             <h1 class="post-title" th:text="${post.title}">제목</h1>
         </div>
 
-        <!-- 게시글 수정 폼 -->
         <div class="edit-post-wrap" id="editPostWrap">
             <form action="http://localhost:8000/board-service/community/edit" method="post"
                   onsubmit="return confirm('저장하시겠습니까?')">
@@ -159,12 +156,10 @@
             </form>
         </div>
 
-        <!-- ↓ data-author 로 작성자 심어두기, JS에서 본인 여부 판단 -->
         <div class="post-meta" th:data-author="${post.memberId}">
             <span class="post-author" th:text="${post.memberId}">작성자</span>
             <span th:text="${#temporals.format(post.createdAt, 'yyyy.MM.dd HH:mm')}">날짜</span>
             <span>조회 <span th:text="${post.viewCount}">0</span></span>
-            <!-- 수정/삭제 버튼: 기본 hidden → JS에서 본인이면 표시 -->
             <div class="post-meta-actions" id="postMetaActions" style="display:none;">
                 <button class="btn-sm" onclick="toggleEditPost(true)">✏️ 수정</button>
                 <form action="http://localhost:8000/board-service/community/delete" method="post" style="display:inline;"
@@ -209,7 +204,6 @@
             댓글 <span class="comment-count" th:text="${#lists.size(comments)}">0</span>
         </div>
 
-        <!-- 댓글 작성 폼: 기본 hidden → JS에서 로그인이면 표시 -->
         <div class="comment-form" id="commentFormArea" style="display:none;">
             <form action="http://localhost:8000/board-service/community/comment" method="post"
                   onsubmit="return confirm('댓글을 등록하시겠습니까?')">
@@ -221,20 +215,17 @@
                 </div>
             </form>
         </div>
-        <!-- 비로그인 안내: 기본 표시 → JS에서 로그인이면 숨김 -->
         <div id="commentLoginNotice"
              style="padding:14px; background:#F5F7FA; border-radius:8px; text-align:center; font-size:14px; color:#999; margin-bottom:24px;">
             댓글을 작성하려면 <a href="http://localhost:8000/user-service/member/login" style="color:#1B8EF8; font-weight:600;">로그인</a>이 필요합니다.
         </div>
 
-        <!-- 댓글 목록 -->
         <ul class="comment-list">
             <li th:if="${#lists.isEmpty(comments)}"
                 style="text-align:center; padding:40px 0; color:#aaa; font-size:14px;">
                 첫 번째 댓글을 작성해보세요!
             </li>
 
-            <!-- ↓ data-author 로 댓글 작성자 심어두기 -->
             <li class="comment-item"
                 th:each="comment : ${comments}"
                 th:id="'comment-' + ${comment.commentId}"
@@ -248,11 +239,9 @@
                             <span class="comment-date" th:text="${#temporals.format(comment.createdAt, 'yyyy.MM.dd HH:mm')}">날짜</span>
                         </div>
 
-                        <!-- 댓글 내용 -->
                         <div th:id="'comment-text-' + ${comment.commentId}"
                              class="comment-text" th:text="${comment.content}">내용</div>
 
-                        <!-- 댓글 수정 폼 -->
                         <div th:id="'comment-edit-' + ${comment.commentId}" class="comment-edit-wrap">
                             <form action="http://localhost:8000/board-service/community/comment/edit" method="post"
                                   onsubmit="return confirm('수정하시겠습니까?')">
@@ -269,11 +258,9 @@
                         </div>
 
                         <div class="comment-actions" th:id="'comment-actions-' + ${comment.commentId}">
-                            <!-- 답글 버튼: 기본 hidden → JS에서 로그인이면 표시 -->
                             <button class="comment-action-btn comment-reply-btn" style="display:none;"
                                     th:onclick="|toggleReplyForm(${comment.commentId})|">💬 답글</button>
 
-                            <!-- 수정/삭제: 기본 hidden → JS에서 본인이면 표시 -->
                             <span class="comment-owner-actions" style="display:none;">
                                 <button class="comment-action-btn"
                                         th:onclick="|toggleCommentEdit(${comment.commentId}, true)|">수정</button>
@@ -296,9 +283,7 @@
                     </div>
                 </div>
 
-                <!-- 대댓글 목록 -->
                 <ul class="reply-list" th:if="${comment.replies != null and !#lists.isEmpty(comment.replies)}">
-                    <!-- ↓ data-author 로 대댓글 작성자 심어두기 -->
                     <li class="reply-item"
                         th:each="reply : ${comment.replies}"
                         th:data-author="${reply.memberId}">
@@ -311,7 +296,6 @@
                             </div>
                             <div class="comment-text" th:text="${reply.content}">대댓글 내용</div>
                             <div class="comment-actions">
-                                <!-- 대댓글 삭제: 기본 hidden → JS에서 본인이면 표시 -->
                                 <span class="reply-owner-actions" style="display:none;">
                                     <form action="http://localhost:8000/board-service/community/comment/delete" method="post" style="display:inline;"
                                           onsubmit="return confirm('삭제하시겠습니까?')">
@@ -332,7 +316,6 @@
                     </li>
                 </ul>
 
-                <!-- 대댓글 작성 폼: 기본 hidden → JS에서 로그인이면 표시 -->
                 <div class="reply-form-wrap" th:id="'reply-form-' + ${comment.commentId}">
                     <form action="http://localhost:8000/board-service/community/comment" method="post"
                           onsubmit="return confirm('대댓글을 등록하시겠습니까?')">
@@ -350,7 +333,6 @@
             </li>
         </ul>
 
-        <!-- 댓글 페이지네이션 -->
         <div class="comment-pagination"
              th:if="${commentTotalPages != null and commentTotalPages > 1}">
             <a th:href="@{'http://localhost:8000/board-service/community/view'(postId=${post.postId},commentPage=1)}"
@@ -416,53 +398,74 @@
 </div>
 
 <script>
-    /* ── header.html 과 동일한 방식으로 로그인 여부 + 본인 여부 판단 ── */
-    document.addEventListener('DOMContentLoaded', function () {
+    /* ── /auth/check API로 로그인 여부 확인 ── */
+    // fetch('/auth/check') 전체 삭제하고 이걸로 교체
+document.addEventListener('DOMContentLoaded', function () {
 
-        // sessionStorage 우선, localStorage 폴백 (추후 localStorage로 통일 예정)
-        var loginUserRaw = sessionStorage.getItem('loginUser') || localStorage.getItem('loginUser');
-        var accessToken  = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-        var isLoggedIn   = false;
-        var myId         = null;
+    var postFooter = document.querySelector('.post-footer');
+    var commentCard = document.querySelector('.comment-card');
 
-        if (loginUserRaw && accessToken) {
-            try {
-                var loginUser = JSON.parse(loginUserRaw);
-                if (loginUser) {
-                    isLoggedIn = true;
-                    myId = loginUser.memberid || loginUser.memberId || loginUser.name || null;
-                }
-            } catch (e) {
-                isLoggedIn = false;
-            }
+    // ✅ Thymeleaf로 서버에서 직접 받기
+    var myId = "[[${memberId}]]";
+    var isLoggedIn = myId !== null && myId !== '' && myId !== 'null';
+
+    applyLoginState(isLoggedIn, isLoggedIn ? myId : null);
+
+    if (postFooter) postFooter.style.visibility = 'visible';
+    if (commentCard) commentCard.style.visibility = 'visible';
+
+    // 신고 모달 body로 이동
+    var modal = document.getElementById('reportModal');
+    if (modal) document.body.appendChild(modal);
+
+    document.getElementById('reportForm').onsubmit = function(e) {
+        var reasonSelected = document.querySelector('input[name="reasonId"]:checked');
+        if (!reasonSelected) {
+            e.preventDefault();
+            alert('신고 유형을 선택해주세요.');
+            return;
         }
+        if (!confirm('신고를 접수하시겠습니까?')) {
+            e.preventDefault();
+        }
+    };
+
+      
+    });
+
+    function applyLoginState(isLoggedIn, myId) {
 
         /* ── 로그인 상태 처리 ── */
         if (isLoggedIn) {
-            // 댓글 작성 폼 표시
             var commentForm = document.getElementById('commentFormArea');
             if (commentForm) commentForm.style.display = 'block';
 
-            // 비로그인 안내 숨김
             var loginNotice = document.getElementById('commentLoginNotice');
             if (loginNotice) loginNotice.style.display = 'none';
 
-            // 모든 답글 버튼 표시
             document.querySelectorAll('.comment-reply-btn').forEach(function(btn) {
                 btn.style.display = 'inline-flex';
             });
         }
 
+        /* ── 비로그인 시 신고 버튼 숨김 ── */
+        if (!isLoggedIn) {
+            var postReportBtn = document.querySelector('.report-btn');
+            if (postReportBtn) postReportBtn.style.display = 'none';
+
+            document.querySelectorAll('.comment-action-btn').forEach(function(btn) {
+                if (btn.textContent.includes('신고')) btn.style.display = 'none';
+            });
+        }
+
         /* ── 본인 글 수정/삭제 버튼 표시 ── */
         if (myId) {
-            // 게시글 수정/삭제
             var postMeta = document.querySelector('.post-meta');
             if (postMeta && postMeta.dataset.author === myId) {
                 var metaActions = document.getElementById('postMetaActions');
                 if (metaActions) metaActions.style.display = 'flex';
             }
 
-            // 댓글 수정/삭제
             document.querySelectorAll('.comment-item').forEach(function(item) {
                 if (item.dataset.author === myId) {
                     var ownerActions = item.querySelector('.comment-owner-actions');
@@ -470,7 +473,6 @@
                 }
             });
 
-            // 대댓글 삭제
             document.querySelectorAll('.reply-item').forEach(function(item) {
                 if (item.dataset.author === myId) {
                     var ownerActions = item.querySelector('.reply-owner-actions');
@@ -478,24 +480,7 @@
                 }
             });
         }
-
-        /* ── 신고 모달 body로 이동 ── */
-        var modal = document.getElementById('reportModal');
-        if (modal) document.body.appendChild(modal);
-
-        
-        document.getElementById('reportForm').onsubmit = function(e) {
-            var reasonSelected = document.querySelector('input[name="reasonId"]:checked');
-            if (!reasonSelected) {
-                e.preventDefault();
-                alert('신고 유형을 선택해주세요.');
-                return;
-            }
-            if (!confirm('신고를 접수하시겠습니까?')) {
-                e.preventDefault();
-            }
-        };
-       });
+    }
 
     /* ── 공통 함수 ── */
     function closeReport() {

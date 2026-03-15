@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 2. 쿠키에서 시도
         if (token == null && request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if ("JWT_TOKEN".equals(cookie.getName())) {
+                if ("accessToken".equals(cookie.getName())) {
                     token = cookie.getValue();
                     break;
                 }
@@ -46,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 4. JWT_TOKEN 없거나 만료 시 refreshToken으로 재발급
+        // 4. accessToken 없거나 만료 시 refreshToken으로 재발급
         if (token == null || !jwtTokenProvider.validateToken(token)) {
             String refreshToken = null;
             if (request.getCookies() != null) {
@@ -82,15 +82,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         String newToken = (String) result.getBody().get("accessToken");
                         token = newToken;
 
-                        // 새 JWT_TOKEN 쿠키 발급
-                        Cookie newJwtCookie = new Cookie("JWT_TOKEN", newToken);
+                        // 새 accessToken 쿠키 발급
+                        Cookie newJwtCookie = new Cookie("accessToken", newToken);
                         newJwtCookie.setHttpOnly(true);
                         newJwtCookie.setPath("/");
                         newJwtCookie.setDomain("localhost");
                         newJwtCookie.setMaxAge(60);
                         response.addCookie(newJwtCookie);
 
-                        System.out.println("===== 8002 JWT_TOKEN 자동 재발급 성공");
+                        System.out.println("===== 8002 accessToken 자동 재발급 성공");
                     }
                 } catch (Exception e) {
                     System.out.println("===== 8002 토큰 재발급 실패: " + e.getMessage());
