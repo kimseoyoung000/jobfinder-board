@@ -8,5 +8,5 @@ public class RegionDTO {
     private String fkParentRegionCode;
     private String regionName;
     private int regionLevel;
-    private int sort;
+    private int sort; /* 확 */
 }
