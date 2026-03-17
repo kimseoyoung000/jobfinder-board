@@ -188,15 +188,13 @@
     <!-- 이전/다음 글 -->
     <div class="post-nav">
         <!-- 상대경로 변환 -->
-        <a class="post-nav-item"
-           th:href="${prevPost != null} ? @{view(postId=${prevPost.postId}, token=${accessToken})} : '#'"
+        <a class="post-nav-item" th:href="${prevPost != null} ? @{view(postId=${prevPost.postId})} : '#'"
            th:classappend="${prevPost == null} ? 'disabled'">
             <span class="post-nav-label">▲ 이전</span>
             <span th:text="${prevPost != null} ? ${prevPost.title} : '이전 글이 없습니다.'">이전글</span>
         </a>
         
-        <a class="post-nav-item"
-           th:href="${nextPost != null} ? @{view(postId=${nextPost.postId}, token=${accessToken})} : '#'"
+        <a class="post-nav-item" th:href="${nextPost != null} ? @{view(postId=${nextPost.postId})} : '#'"
            th:classappend="${nextPost == null} ? 'disabled'">
             <span class="post-nav-label">▼ 다음</span>
             <span th:text="${nextPost != null} ? ${nextPost.title} : '다음 글이 없습니다.'">다음글</span>

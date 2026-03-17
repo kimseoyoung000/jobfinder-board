@@ -49,19 +49,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	    }
     	}
     	
-    	//  3. 쿠키에도 없으면 URL 파라미터에서 시도
-    	if (token == null) {
-    	    String paramToken = request.getParameter("token");
-    	    if (paramToken != null && !paramToken.isBlank()) {
-    	        token = paramToken;
-
-    	        // 쿠키에 심어서 이후 요청(페이지 내 API 등)에도 인증 유지
-    	        Cookie tokenCookie = new Cookie("accessToken", token);
-    	        tokenCookie.setPath("/");
-    	        tokenCookie.setMaxAge(60 * 30); // 30분
-    	        response.addCookie(tokenCookie);
-    	    }
-    	}
 
     	// 4. accessToken 없거나 만료 시 refreshToken으로 재발급
     	if (token == null || !jwtTokenProvider.validateToken(token)) {

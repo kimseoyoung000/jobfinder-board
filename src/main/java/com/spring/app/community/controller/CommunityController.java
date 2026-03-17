@@ -118,19 +118,6 @@ public class CommunityController {
             memberId = auth.getName();
         }
         model.addAttribute("memberId", memberId);
-
-        //  추가 - 쿠키에서 accessToken 꺼내서 모델에 담기
-        String accessToken = null;
-        if (request.getCookies() != null) {
-            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                if ("accessToken".equals(cookie.getName())) {
-                    accessToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
-        
-        model.addAttribute("accessToken", accessToken);
         
         communityService.increaseViewCount(postId);
 
