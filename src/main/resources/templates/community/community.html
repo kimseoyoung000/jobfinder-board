@@ -340,7 +340,7 @@
 		document.addEventListener('DOMContentLoaded', function () {
 		    var accessToken = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
 
-		    fetch(window.location.origin + '/user-service/auth/check', {
+		    fetch('/user-service/auth/check', {
 		        method: 'GET',
 		        credentials: 'include',
 		        headers: accessToken ? { 'Authorization': 'Bearer ' + accessToken } : {}

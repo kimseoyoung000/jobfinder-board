@@ -7,7 +7,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,7 +16,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -73,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     	            org.springframework.http.ResponseEntity<java.util.Map> result =
     	            	restTemplate.exchange(
-    	            			"http://main-service:8001/auth/reissue",
+    	            			"http://localhost:8001/auth/reissue",
         	                    org.springframework.http.HttpMethod.POST,
         	                    entity,
         	                    java.util.Map.class
@@ -91,7 +89,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	               
     	            }
     	        } catch (Exception e) {
-    	            
+    	        	System.err.println("[JwtFilter] reissue 실패: " + e.getMessage());
     	        }
     	    }
     	}
@@ -105,16 +103,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     	    UsernamePasswordAuthenticationToken authentication =
     	            new UsernamePasswordAuthenticationToken(memberId, null, authorities);
 
-    	    // SecurityContext 세션에 저장
+    	    // SecurityContext 설정
     	    SecurityContext context = SecurityContextHolder.createEmptyContext();
     	    context.setAuthentication(authentication);
     	    SecurityContextHolder.setContext(context);
 
-    	    HttpSession session = request.getSession(true);
-    	    session.setAttribute(
-    	        HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-    	        context
-    	    );
+    	     	    
     	}
         
         filterChain.doFilter(request, response);
