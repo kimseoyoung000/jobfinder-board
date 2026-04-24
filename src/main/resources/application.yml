@@ -1,21 +1,21 @@
-# MSA 버전
+# MSA 설정 - Board Service
 jwt:
-  secret: "change-this-to-a-very-long-random-secret-key-for-final-project-2026"
-  access-token-expiration-ms: 60000    # 1분
-  refresh-token-expiration-ms: 1209600000  # 14일
+  secret: ${JWT_SECRET}
+  access-token-expiration-ms: 60000
+  refresh-token-expiration-ms: 1209600000
 
 solapi:
   enabled: true
-  api-key: "NCSIFFEJP0BPVSQU"
-  api-secret: "JW2CYTPS4P7NLXNA9PAUN0VCBVGJ2IK0"
-  from-phone: "01020660376"   # 발신번호(솔라피에 등록된 번호)
+  api-key: ${SOLAPI_API_KEY}
+  api-secret: ${SOLAPI_API_SECRET}
+  from-phone: ${SOLAPI_FROM_PHONE}
   base-url: "https://api.solapi.com"
 
-spring: # 주의할 점은 내용작성시 들여쓰기 내어쓰기시 공백개수를 반드시 꼭 지켜야 한다.
+spring:
   application:
     name: board-service
 
-  profiles: #실행환경(dev(개발),test(테스트),local(로컬),prod(운영))
+  profiles:
     active: local
 
   thymeleaf:
@@ -25,9 +25,9 @@ spring: # 주의할 점은 내용작성시 들여쓰기 내어쓰기시 공백�
 
   datasource-myspringbootuser:
     driver-class-name: oracle.jdbc.OracleDriver
-    jdbcUrl: jdbc:oracle:thin:@211.63.89.70:1521:xe
-    username: final_orauser2
-    password: sistsix
+    jdbcUrl: ${DB_URL:jdbc:oracle:thin:@127.0.0.1:1521:xe}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       minimum-idle: 5
@@ -67,7 +67,7 @@ server:
       enabled: true
       force: true
   tomcat:
-    max-part-count: 30 
+    max-part-count: 30
 
 eureka:
   client:
@@ -85,9 +85,9 @@ file:
   images-dir: file_images
 
 portone:
-  impCode: imp13783325
-  apiKey: 6685577616083070
-  apiSecret: iur2e8plZSGlGi8Tkkaak8QgJS3o8NMaYrBredEzJUtSSpRIKrXIRwbl0hiLIiyvxtQWe4G1p8GTt6v4
+  impCode: ${PORTONE_IMP_CODE}
+  apiKey: ${PORTONE_API_KEY}
+  apiSecret: ${PORTONE_API_SECRET}
 
 app:
   login-url: /user-service/member/login
